@@ -147,6 +147,163 @@
   color: var(--text-color);
 }
 
+.message pre {
+  margin: 0.5rem 0;
+  border-radius: 8px;
+  overflow: auto;
+  max-width: 100%;
+}
+
+.message code {
+  background-color: rgba(0, 0, 0, 0.05);
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-family: monospace;
+  font-size: 0.9em;
+}
+
+.message p {
+  margin: 0.5rem 0;
+}
+
+.message ul, .message ol {
+  margin: 0.5rem 0;
+  padding-left: 1.5rem;
+}
+
+.message blockquote {
+  margin: 0.5rem 0;
+  padding-left: 1rem;
+  border-left: 4px solid var(--secondary-color);
+  color: #666;
+}
+
+.message table {
+  border-collapse: collapse;
+  margin: 0.5rem 0;
+  width: 100%;
+}
+
+.message th, .message td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+}
+
+.message th {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+.message img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin: 0.5rem 0;
+}
+
+.message hr {
+  margin: 1rem 0;
+  border: 0;
+  border-top: 1px solid #eee;
+}
+
+.message h1, .message h2, .message h3, .message h4, .message h5, .message h6 {
+  margin: 1rem 0 0.5rem;
+  line-height: 1.4;
+}
+
+.ai-message pre {
+  background: #1e1e1e !important;
+  padding: 1rem !important;
+}
+
+/* Code block styling */
+.code-block-container {
+  position: relative;
+  margin: 1rem 0;
+  border-radius: 0.5rem;
+  overflow: hidden;
+}
+
+.code-language-label {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  padding: 0.2rem 0.5rem;
+  font-size: 0.75rem;
+  border-bottom-left-radius: 0.3rem;
+  z-index: 10;
+}
+
+.copy-code-button {
+  position: absolute;
+  right: 0.5rem;
+  bottom: 0.5rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.copy-code-button:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Pre overrides for code blocks */
+.message pre {
+  margin: 0 !important;
+  padding: 0 !important;
+  background: transparent !important;
+}
+
+/* Improved markdown formatting */
+.ai-message h1, 
+.ai-message h2, 
+.ai-message h3, 
+.ai-message h4 {
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.ai-message h1 {
+  font-size: 1.5rem;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 0.3rem;
+}
+
+.ai-message h2 {
+  font-size: 1.3rem;
+}
+
+.ai-message h3 {
+  font-size: 1.1rem;
+}
+
+.ai-message table {
+  border-collapse: collapse;
+  margin: 1rem 0;
+  width: 100%;
+}
+
+.ai-message th {
+  background-color: rgba(0, 0, 0, 0.05);
+  font-weight: 600;
+}
+
+.ai-message th, 
+.ai-message td {
+  border: 1px solid #ddd;
+  padding: 0.5rem;
+  text-align: left;
+}
+
 /* Chat input area */
 .chat-input {
   display: flex;

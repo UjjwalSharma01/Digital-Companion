@@ -88,7 +88,7 @@ export function useChat() {
       setMessages(greetingUiMessages);
       setConversationHistory(initialConversationHistory);
     }
-  }, [currentPersona, persona, getCurrentTime]);
+  }, [currentPersona, persona, getCurrentTime, language]);
 
   // Initialize chat when persona changes
   useEffect(() => {

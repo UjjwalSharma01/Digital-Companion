@@ -27,7 +27,7 @@ export default function LanguageSelector({ onLanguageSelect }) {
     <div className="language-selector-overlay">
       <div className="language-selector-modal">
         <h2>Choose Your Preferred Language</h2>
-        <p>Select the language you'd like to chat in:</p>
+        <p>Select the language you&apos;d like to chat in:</p>
         <div className="language-buttons">
           <button onClick={() => handleLanguageSelect(SUPPORTED_LANGUAGES.HINGLISH)}>
             Hinglish
