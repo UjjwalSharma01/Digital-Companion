@@ -6,16 +6,16 @@ import { CHAT_STORAGE_KEY, TIMESTAMP_STORAGE_KEY, CHAT_EXPIRY_TIME } from './con
  * @param {Array} messages - UI messages to display
  * @param {Array} conversationHistory - Complete conversation history for AI context
  */
-export function saveChat(messages, conversationHistory) {
+export function saveChat(messages, conversationHistory, personaId = 'romantic') {
   try {
     localStorage.setItem(
-      CHAT_STORAGE_KEY, 
+      `${CHAT_STORAGE_KEY}_${personaId}`, 
       JSON.stringify({
         messages,
         history: conversationHistory
       })
     );
-    localStorage.setItem(TIMESTAMP_STORAGE_KEY, String(new Date().getTime()));
+    localStorage.setItem(`${TIMESTAMP_STORAGE_KEY}_${personaId}`, String(new Date().getTime()));
   } catch (e) {
     console.error("Error saving chat:", e);
   }
@@ -25,13 +25,13 @@ export function saveChat(messages, conversationHistory) {
  * Loads chat history from localStorage if available and not expired
  * @returns {Object|null} The saved chat data or null if not available
  */
-export function loadChat() {
+export function loadChat(personaId = 'romantic') {
   try {
-    const savedChat = localStorage.getItem(CHAT_STORAGE_KEY);
+    const savedChat = localStorage.getItem(`${CHAT_STORAGE_KEY}_${personaId}`);
     if (!savedChat) return null;
     
     // Check if chat is expired (older than CHAT_EXPIRY_TIME)
-    const lastTimestamp = localStorage.getItem(TIMESTAMP_STORAGE_KEY);
+    const lastTimestamp = localStorage.getItem(`${TIMESTAMP_STORAGE_KEY}_${personaId}`);
     if (!lastTimestamp) return null;
     
     const now = new Date().getTime();
@@ -47,7 +47,7 @@ export function loadChat() {
 /**
  * Clear all chat data from localStorage
  */
-export function clearChat() {
-  localStorage.removeItem(CHAT_STORAGE_KEY);
-  localStorage.removeItem(TIMESTAMP_STORAGE_KEY);
+export function clearChat(personaId = 'romantic') {
+  localStorage.removeItem(`${CHAT_STORAGE_KEY}_${personaId}`);
+  localStorage.removeItem(`${TIMESTAMP_STORAGE_KEY}_${personaId}`);
 }

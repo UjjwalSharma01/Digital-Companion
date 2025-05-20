@@ -3,77 +3,35 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getGeminiResponse } from '../api/gemini';
 import { saveChat, loadChat, clearChat as clearLocalStorage } from '../storage';
-// Import from the new persona file
-import { SYSTEM_PROMPT, DEFAULT_GREETING, MESSAGE_DELAY_RANGE, PERSONA_DETAILS } from '../personas/romantic';
+import { personas, defaultPersona } from '../personas';
+import { LAST_PERSONA_KEY, SUPPORTED_LANGUAGES } from '../constants/chat';
 
 /**
  * Custom hook for chat functionality
  * @returns {Object} Chat related state and functions
  */
 export function useChat() {
-  const [messages, setMessages] = useState([]);
-  // Include persona details in conversation history for context
-  const [conversationHistory, setConversationHistory] = useState([
-    { role: "system", parts: [{ text: JSON.stringify(PERSONA_DETAILS) }] } 
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [input, setInput] = useState('');
-
-  // Initialize conversation on component mount
-  useEffect(() => {
-    initializeChat();
-  }, []);
-
-  // Initialize chat with system prompt or load from storage
-  const initializeChat = useCallback(() => {
-    const initialSystemMessage = { role: "system", parts: [{ text: JSON.stringify(PERSONA_DETAILS) }] };
-    const initialUserPrompt = { role: "user", parts: [{ text: SYSTEM_PROMPT }] };
-    
-    let initialGreetingMessages = [];
-    if (Array.isArray(DEFAULT_GREETING)) {
-      initialGreetingMessages = DEFAULT_GREETING.map(greet => ({
-        role: "model",
-        parts: [{ text: greet }]
-      }));
-    } else {
-      initialGreetingMessages = [{ role: "model", parts: [{ text: DEFAULT_GREETING }] }];
-    }
-
-    const initialConversationHistory = [
-      initialSystemMessage,
-      initialUserPrompt,
-      ...initialGreetingMessages
-    ];
-
-    // Try to load from localStorage
-    const savedChat = loadChat();
-    
-    if (savedChat && savedChat.history && savedChat.history.length > 0) {
-      setMessages(savedChat.messages);
-      // Ensure persona details are always at the start of loaded history
-      if (savedChat.history[0]?.role !== 'system') {
-        setConversationHistory([initialSystemMessage, ...savedChat.history]);
-      } else {
-        setConversationHistory(savedChat.history);
-      }
-    } else {
-      // Start fresh chat
-      const greetingUiMessages = initialGreetingMessages.map(greetMsg => ({
-        content: greetMsg.parts[0].text,
-        isUser: false,
-        timestamp: getCurrentTime()
-      }));
-      setMessages(greetingUiMessages);
-      setConversationHistory(initialConversationHistory);
-    }
-  }, []);
-
-  // Get current time for message timestamp
+  // Helper functions
   const getCurrentTime = useCallback(() => {
     const now = new Date();
     return now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }, []);
-
+  
+  const getRandomEmoji = useCallback(() => {
+    const emojis = ['❤️', '😊', '😍', '🥰', '💕', '💖', '😘', '💓', '💗', '💞'];
+    return emojis[Math.floor(Math.random() * emojis.length)];
+  }, []);
+  
+  // Initialize state
+  const [currentPersona, setCurrentPersona] = useState(defaultPersona);
+  const [language, setLanguage] = useState(SUPPORTED_LANGUAGES.HINGLISH);
+  const [messages, setMessages] = useState([]);
+  const [conversationHistory, setConversationHistory] = useState([]);
+  const [isTyping, setIsTyping] = useState(false);
+  const [input, setInput] = useState('');
+  
+  const persona = personas[currentPersona];
+  
   // Add a message to chat
   const addMessage = useCallback((content, isUser, options = {}) => {
     const newMessage = {
@@ -85,76 +43,116 @@ export function useChat() {
 
     setMessages(prevMessages => {
       const updatedMessages = [...prevMessages, newMessage];
-      // Save to localStorage - ensure conversationHistory is up-to-date here
-      // This might need adjustment based on when conversationHistory is set after AI response
-      saveChat(updatedMessages, conversationHistory); 
+      saveChat(updatedMessages, conversationHistory, currentPersona);
       return updatedMessages;
     });
-  }, [conversationHistory, getCurrentTime]); // Added conversationHistory dependency
+  }, [conversationHistory, getCurrentTime, getRandomEmoji, currentPersona]);
 
-  // Get random emoji for AI response reactions
-  const getRandomEmoji = useCallback(() => {
-    const emojis = ['❤️', '😊', '😍', '🥰', '💕', '💖', '😘', '💓', '💗', '💞'];
-    return emojis[Math.floor(Math.random() * emojis.length)];
+  // Initialize or restore chat
+  const initializeChat = useCallback(() => {
+    const savedChat = loadChat(currentPersona);
+    
+    if (savedChat?.history?.length > 0) {
+      setMessages(savedChat.messages);
+      // Always ensure correct persona details at start of history
+      const initialSystemMessage = { role: "system", parts: [{ text: JSON.stringify({...persona.PERSONA_DETAILS, language}) }] };
+      setConversationHistory([initialSystemMessage, ...savedChat.history.slice(1)]);
+    } else {
+      // Start fresh chat with current persona
+      const initialSystemMessage = { role: "system", parts: [{ text: JSON.stringify({...persona.PERSONA_DETAILS, language}) }] };
+      const initialUserPrompt = { role: "user", parts: [{ text: persona.SYSTEM_PROMPTS[language] }] };
+      
+      let initialGreetingMessages = [];
+      const greetings = persona.DEFAULT_GREETINGS[language];
+      if (Array.isArray(greetings)) {
+        initialGreetingMessages = greetings.map(greet => ({
+          role: "model",
+          parts: [{ text: greet }]
+        }));
+      } else {
+        initialGreetingMessages = [{ role: "model", parts: [{ text: persona.DEFAULT_GREETING }] }];
+      }
+
+      const initialConversationHistory = [
+        initialSystemMessage,
+        initialUserPrompt,
+        ...initialGreetingMessages
+      ];
+
+      // Set up initial UI messages
+      const greetingUiMessages = initialGreetingMessages.map(greetMsg => ({
+        content: greetMsg.parts[0].text,
+        isUser: false,
+        timestamp: getCurrentTime()
+      }));
+      setMessages(greetingUiMessages);
+      setConversationHistory(initialConversationHistory);
+    }
+  }, [currentPersona, persona, getCurrentTime]);
+
+  // Initialize chat when persona changes
+  useEffect(() => {
+    initializeChat();
+  }, [initializeChat]);
+
+  // Load saved persona after mount
+  useEffect(() => {
+    const savedPersona = localStorage.getItem(LAST_PERSONA_KEY);
+    if (savedPersona && personas[savedPersona]) {
+      setCurrentPersona(savedPersona);
+    }
   }, []);
 
   // Send message to AI and get response
   const sendMessage = useCallback(async (message) => {
     if (!message.trim()) return;
 
-    // Clear input field and add user message
     setInput('');
     addMessage(message, true);
     
     const userMessageForHistory = { role: "user", parts: [{ text: message }] };
-    // Immediately update conversation history with user's message
     const currentHistory = [...conversationHistory, userMessageForHistory];
     setConversationHistory(currentHistory);
     
     setIsTyping(true);
     
     try {
-      // Add a natural-feeling delay before AI "starts typing"
-      await new Promise(resolve => setTimeout(resolve, MESSAGE_DELAY_RANGE.minimum / 2));
+      const limitedHistory = currentHistory.slice(-200);
+      await new Promise(resolve => setTimeout(resolve, persona.MESSAGE_DELAY_RANGE.minimum / 2));
       
-      const responsePromise = getGeminiResponse(currentHistory); // Pass currentHistory
+      const responsePromise = getGeminiResponse(limitedHistory);
+      const thinkingTime = persona.MESSAGE_DELAY_RANGE.minimum + 
+        Math.random() * (persona.MESSAGE_DELAY_RANGE.maximum - persona.MESSAGE_DELAY_RANGE.minimum);
       
-      // Simulate thinking time and API call
-      const thinkingTime = MESSAGE_DELAY_RANGE.minimum + Math.random() * (MESSAGE_DELAY_RANGE.maximum - MESSAGE_DELAY_RANGE.minimum);
       const [rawResponse] = await Promise.all([
         responsePromise,
         new Promise(resolve => setTimeout(resolve, thinkingTime))
       ]);
 
-      setIsTyping(false); // AI has "finished typing" the whole thought
+      setIsTyping(false);
 
-      // Split response into multiple messages if it contains newlines
       const responseParts = rawResponse.split('\\n').filter(part => part.trim() !== '');
-      
-      let aiResponseHistory = [...currentHistory]; // Start with history up to user's message
+      let aiResponseHistory = [...currentHistory];
 
       for (let i = 0; i < responseParts.length; i++) {
         const part = responseParts[i];
-        addMessage(part, false, { isMultiPart: true }); // Add to UI
+        addMessage(part, false, { isMultiPart: true });
         
-        // Add AI part to history
         aiResponseHistory = [...aiResponseHistory, { role: "model", parts: [{ text: part }] }];
-        setConversationHistory(aiResponseHistory); // Update history after each part
+        setConversationHistory(aiResponseHistory);
 
         if (i < responseParts.length - 1) {
-          // Natural delay between sending parts of a multi-part message
-          const partDelay = MESSAGE_DELAY_RANGE.minimum + Math.random() * (MESSAGE_DELAY_RANGE.maximum - MESSAGE_DELAY_RANGE.minimum);
-          setIsTyping(true); // Indicate AI is "typing" the next part
+          const partDelay = persona.MESSAGE_DELAY_RANGE.minimum + 
+            Math.random() * (persona.MESSAGE_DELAY_RANGE.maximum - persona.MESSAGE_DELAY_RANGE.minimum);
+          setIsTyping(true);
           await new Promise(resolve => setTimeout(resolve, partDelay));
           setIsTyping(false);
         }
       }
       
-      // Final save after all parts are processed
-      // Need to get the latest messages state here
       setMessages(prevUiMessages => {
-        saveChat(prevUiMessages, aiResponseHistory);
-        return prevUiMessages; 
+        saveChat(prevUiMessages, aiResponseHistory, currentPersona);
+        return prevUiMessages;
       });
       
     } catch (error) {
@@ -162,14 +160,23 @@ export function useChat() {
       addMessage("Oops! Kuch technical problem hai. Thoda wait karein...", false);
       setIsTyping(false);
     }
-  }, [addMessage, conversationHistory, getCurrentTime]); // Removed messages from dependencies, added conversationHistory
+  }, [addMessage, conversationHistory, persona, setInput, currentPersona]);
 
-  // Clear chat - both from state and localStorage
+  // Switch persona
+  const switchPersona = useCallback((personaId) => {
+    if (personas[personaId] && personaId !== currentPersona) {
+      localStorage.setItem(LAST_PERSONA_KEY, personaId);
+      setMessages([]);
+      setConversationHistory([]);
+      setCurrentPersona(personaId);
+    }
+  }, [currentPersona]);
+
+  // Clear chat
   const clearChat = useCallback(() => {
-    setMessages([]);
-    clearLocalStorage();
+    clearLocalStorage(currentPersona);
     initializeChat();
-  }, [initializeChat]);
+  }, [currentPersona, initializeChat]);
 
   return {
     messages,
@@ -177,6 +184,10 @@ export function useChat() {
     input,
     setInput,
     sendMessage,
-    clearChat
+    clearChat,
+    currentPersona,
+    switchPersona,
+    setLanguage,
+    personas: Object.values(personas)
   };
 }

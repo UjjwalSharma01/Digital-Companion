@@ -7,12 +7,13 @@ import TypingIndicator from './TypingIndicator';
 import ChatInput from './ChatInput';
 import ChatHeader from './ChatHeader';
 import ChatToolbar from './ChatToolbar';
+import LanguageSelector from './LanguageSelector';
 
 /**
  * Main chat container component
  */
 export default function Chat() {
-  const { messages, isTyping, sendMessage, clearChat } = useChat();
+  const { messages, isTyping, sendMessage, clearChat, setLanguage } = useChat();
   const messagesEndRef = useRef(null);
 
   // Scroll to bottom when new messages arrive
@@ -20,13 +21,9 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  // Expose clearChat to window for debugging (similar to the original code)
-  useEffect(() => {
-    window.clearChat = clearChat;
-  }, [clearChat]);
-
   return (
     <div className="container">
+      <LanguageSelector onLanguageSelect={setLanguage} />
       <div className="chat-container">
         <ChatHeader />
         <ChatToolbar onClearChat={clearChat} />

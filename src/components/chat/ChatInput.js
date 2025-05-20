@@ -26,6 +26,11 @@ export default function ChatInput({ onSendMessage }) {
         value={inputValue}
         onChange={(e) => setInputValue(e.target.value)}
         placeholder="Apna message yahan likhen..."
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck="false"
+        data-form-type="other"
       />
       <button 
         type="submit" 
