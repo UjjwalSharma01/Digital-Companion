@@ -2,7 +2,13 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { getGeminiResponse } from '../api/gemini';
-import { saveChat, loadChat, clearChat as clearLocalStorage } from '../storage';
+import { 
+  saveChat, 
+  loadChat, 
+  clearChat as clearLocalStorage, 
+  exportChatToJSON,
+  importChatFromJSON
+} from '../storage';
 import { personas, defaultPersona } from '../personas';
 import { LAST_PERSONA_KEY, SUPPORTED_LANGUAGES } from '../constants/chat';
 
@@ -177,6 +183,52 @@ export function useChat() {
     clearLocalStorage(currentPersona);
     initializeChat();
   }, [currentPersona, initializeChat]);
+  
+  // Export chat history to JSON file
+  const exportChat = useCallback(() => {
+    const result = exportChatToJSON(currentPersona);
+    if (result.success) {
+      // Create and click a download link
+      const link = document.createElement('a');
+      link.href = result.url;
+      link.download = result.filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      // Clean up the URL object
+      setTimeout(() => {
+        result.cleanup();
+      }, 100);
+      
+      return { success: true };
+    } else {
+      return { success: false, error: result.error };
+    }
+  }, [currentPersona]);
+  
+  // Import chat history from JSON file
+  const importChat = useCallback((file) => {
+    return importChatFromJSON(file, currentPersona)
+      .then(result => {
+        if (result.success) {
+          // If the imported chat was for a different persona, switch to that persona
+          if (result.personaId && result.personaId !== currentPersona && personas[result.personaId]) {
+            localStorage.setItem(LAST_PERSONA_KEY, result.personaId);
+            setCurrentPersona(result.personaId);
+          } else {
+            // Otherwise, just reload the chat
+            initializeChat();
+          }
+          return { success: true };
+        }
+        return { success: false, error: "Failed to import chat" };
+      })
+      .catch(error => {
+        console.error("Error importing chat:", error);
+        return { success: false, error: error.error || "Failed to import chat" };
+      });
+  }, [currentPersona, initializeChat]);
 
   return {
     messages,
@@ -188,6 +240,8 @@ export function useChat() {
     currentPersona,
     switchPersona,
     setLanguage,
-    personas: Object.values(personas)
+    personas: Object.values(personas),
+    exportChat,
+    importChat
   };
 }

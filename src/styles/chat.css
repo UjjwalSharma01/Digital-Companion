@@ -21,6 +21,8 @@
   --popup-bg: rgba(0, 0, 0, 0.7);
   --box-shadow: rgba(0, 0, 0, 0.1);
   --dropdown-bg: #ffffff;
+  --burger-icon-color: #333;
+  --burger-menu-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Dark theme variables */
@@ -44,6 +46,8 @@ html.dark-theme {
   --popup-bg: rgba(0, 0, 0, 0.8);
   --box-shadow: rgba(0, 0, 0, 0.3);
   --dropdown-bg: #202020;
+  --burger-icon-color: #e0e0e0;
+  --burger-menu-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 /* Container styles */
@@ -565,6 +569,72 @@ html.dark-theme .chat-messages::-webkit-scrollbar-thumb {
   align-items: center;
 }
 
+/* Toolbar responsive styles */
+.toolbar-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.desktop-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Chat actions group for import, export, clear buttons */
+.chat-actions-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Shared style for chat action buttons */
+.chat-action-btn, .clear-chat-btn {
+  background: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  padding: 5px 10px;
+  border-radius: 15px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.chat-action-btn:hover, .clear-chat-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+}
+
+.chat-action-btn:active, .clear-chat-btn:active {
+  transform: scale(0.95);
+}
+
+.chat-action-btn:disabled, .clear-chat-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Export button with privacy indicator */
+.export-btn {
+  position: relative;
+}
+
+.export-btn:after {
+  content: "🔒";
+  font-size: 0.6rem;
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  width: 12px;
+  height: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Add smooth transitions for theme changes */
 .container,
 .chat-container,
@@ -605,6 +675,158 @@ chat-input,
   100% { transform: scale(1); }
 }
 
+/* Burger menu styles */
+.burger-menu-container {
+  position: relative;
+  display: inline-block;
+}
+
+/* Burger button styling */
+.burger-menu-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.2s ease;
+}
+
+.burger-menu-btn:hover {
+  background-color: rgba(255, 59, 141, 0.1);
+}
+
+/* Burger icon styling */
+.burger-icon {
+  width: 22px;
+  height: 16px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.burger-icon span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background-color: var(--primary-color);
+  border-radius: 2px;
+  transition: all 0.3s ease-in-out;
+}
+
+/* Burger icon animation when open */
+.burger-icon.open span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+
+.burger-icon.open span:nth-child(2) {
+  opacity: 0;
+  transform: scale(0);
+}
+
+.burger-icon.open span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* Dropdown menu styling */
+.burger-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: 48px;
+  background-color: var(--dropdown-bg);
+  border-radius: 8px;
+  width: 240px;
+  box-shadow: var(--burger-menu-shadow);
+  z-index: 100;
+  overflow: hidden;
+  animation: dropdownAnimation 0.3s ease forwards;
+  transform-origin: top right;
+}
+
+/* Menu item styling */
+.menu-item {
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-color);
+  transition: background-color 0.2s ease;
+  position: relative;
+}
+
+.menu-item:last-child {
+  border-bottom: none;
+}
+
+.menu-item:hover {
+  background-color: rgba(255, 59, 141, 0.1);
+}
+
+.menu-item-icon {
+  display: inline-block;
+  margin-right: 8px;
+  font-size: 1.1rem;
+}
+
+.menu-item-text {
+  font-weight: 500;
+  color: var(--text-color);
+  display: flex;
+  align-items: center;
+}
+
+.menu-item-desc {
+  color: var(--text-secondary);
+  margin-top: 4px;
+  font-size: 0.8rem;
+}
+
+/* Disabled menu item */
+.menu-item.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Animation for dropdown menu */
+@keyframes dropdownAnimation {
+  0% {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* FileInput inside the burger menu */
+.menu-item .file-input-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Hide desktop actions on mobile */
+@media (max-width: 768px) {
+  .desktop-actions {
+    display: none;
+  }
+  
+  .toolbar-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+}
+
 /* Responsive design */
 @media (max-width: 850px) {
   .container {
@@ -616,5 +838,20 @@ chat-input,
   
   .message {
     max-width: 90%;
+  }
+}
+
+@media (max-width: 768px) {
+  .chat-toolbar {
+    padding: 8px 12px;
+  }
+  
+  .persona-switcher {
+    max-width: 200px;
+  }
+  
+  .persona-select {
+    font-size: 0.8rem;
+    padding: 4px 8px;
   }
 }
