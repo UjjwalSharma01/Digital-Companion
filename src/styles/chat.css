@@ -10,6 +10,40 @@
   --ai-message: #fff;
   --text-color: #333;
   --text-secondary: #777;
+  --chat-container-bg: #ffffff;
+  --toolbar-bg: rgba(255, 255, 255, 0.8);
+  --input-bg: #f0f2f5;
+  --input-focus-bg: #e4e6eb;
+  --border-color: #eee;
+  --modal-bg: #ffffff;
+  --code-bg: rgba(0, 0, 0, 0.05);
+  --blockquote-color: #666;
+  --popup-bg: rgba(0, 0, 0, 0.7);
+  --box-shadow: rgba(0, 0, 0, 0.1);
+  --dropdown-bg: #ffffff;
+}
+
+/* Dark theme variables */
+html.dark-theme {
+  --primary-color: #ff3b8d;
+  --secondary-color: #ff7eb3;
+  --background-gradient: linear-gradient(135deg, #1a1a1a 0%, #2d1a24 100%);
+  --chat-background: #1e1e1e;
+  --user-message: #2a4a7b;
+  --ai-message: #2a2a2a;
+  --text-color: #e0e0e0;
+  --text-secondary: #aaa;
+  --chat-container-bg: #121212;
+  --toolbar-bg: rgba(30, 30, 30, 0.8);
+  --input-bg: #2a2a2a;
+  --input-focus-bg: #3a3a3a;
+  --border-color: #333;
+  --modal-bg: #2a2a2a;
+  --code-bg: rgba(255, 255, 255, 0.1);
+  --blockquote-color: #aaa;
+  --popup-bg: rgba(0, 0, 0, 0.8);
+  --box-shadow: rgba(0, 0, 0, 0.3);
+  --dropdown-bg: #202020;
 }
 
 /* Container styles */
@@ -20,7 +54,7 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 10px 30px var(--box-shadow);
   border-radius: 15px;
   overflow: hidden;
   height: calc(100vh - 40px);
@@ -28,7 +62,7 @@
 
 .chat-container {
   flex: 1;
-  background-color: white;
+  background-color: var(--chat-container-bg);
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -61,8 +95,8 @@
   justify-content: space-between;
   align-items: center;
   padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.8);
-  border-bottom: 1px solid #eee;
+  background: var(--toolbar-bg);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .clear-chat-btn {
@@ -91,7 +125,7 @@
   padding: 5px 10px;
   border: 1px solid var(--primary-color);
   border-radius: 15px;
-  background-color: white;
+  background-color: var(--dropdown-bg);
   color: var(--text-color);
   font-size: 0.9rem;
   cursor: pointer;
@@ -118,6 +152,33 @@
   flex-direction: column;
   gap: 15px;
   background-color: var(--chat-background);
+  
+  /* Custom scrollbar styling */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+
+/* Webkit scrollbar styling (Chrome, Safari, Edge) */
+.chat-messages::-webkit-scrollbar {
+  width: 8px;
+}
+
+.chat-messages::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 10px;
+}
+
+/* Dark mode scrollbar */
+html.dark-theme .chat-messages {
+  scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+}
+
+html.dark-theme .chat-messages::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* Message bubble styling */
@@ -155,7 +216,7 @@
 }
 
 .message code {
-  background-color: rgba(0, 0, 0, 0.05);
+  background-color: var(--code-bg);
   padding: 0.2em 0.4em;
   border-radius: 3px;
   font-family: monospace;
@@ -175,7 +236,7 @@
   margin: 0.5rem 0;
   padding-left: 1rem;
   border-left: 4px solid var(--secondary-color);
-  color: #666;
+  color: var(--blockquote-color);
 }
 
 .message table {
@@ -185,7 +246,7 @@
 }
 
 .message th, .message td {
-  border: 1px solid #ddd;
+  border: 1px solid var(--border-color);
   padding: 0.5rem;
 }
 
@@ -203,7 +264,7 @@
 .message hr {
   margin: 1rem 0;
   border: 0;
-  border-top: 1px solid #eee;
+  border-top: 1px solid var(--border-color);
 }
 
 .message h1, .message h2, .message h3, .message h4, .message h5, .message h6 {
@@ -274,7 +335,7 @@
 
 .ai-message h1 {
   font-size: 1.5rem;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--border-color);
   padding-bottom: 0.3rem;
 }
 
@@ -308,8 +369,8 @@
 .chat-input {
   display: flex;
   padding: 15px;
-  background-color: white;
-  border-top: 1px solid #eee;
+  background-color: var(--chat-container-bg);
+  border-top: 1px solid var(--border-color);
 }
 
 #user-input {
@@ -317,15 +378,15 @@
   padding: 15px;
   border: none;
   border-radius: 25px;
-  background-color: #f0f2f5;
-  color: var(--text-color); /* Added this line */
+  background-color: var(--input-bg);
+  color: var(--text-color);
   outline: none;
   font-size: 1rem;
   transition: all 0.3s;
 }
 
 #user-input:focus {
-  background-color: #e4e6eb;
+  background-color: var(--input-focus-bg);
   box-shadow: 0 0 0 2px rgba(255, 123, 179, 0.2);
 }
 
@@ -357,11 +418,11 @@
 /* Typing indicator */
 .typing-indicator {
   align-self: flex-start;
-  background-color: white;
+  background-color: var(--ai-message);
   border-radius: 20px;
   padding: 15px 20px;
   margin-top: 5px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px var(--box-shadow);
 }
 
 .typing-dots {
@@ -414,7 +475,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: var(--popup-bg);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -422,13 +483,13 @@
 }
 
 .language-selector-modal {
-  background: white;
+  background: var(--modal-bg);
   padding: 2rem;
   border-radius: 15px;
   max-width: 400px;
   width: 90%;
   text-align: center;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 25px var(--box-shadow);
 }
 
 .language-selector-modal h2 {
@@ -454,7 +515,7 @@
   padding: 1rem;
   border: 2px solid var(--primary-color);
   border-radius: 10px;
-  background: white;
+  background: var(--modal-bg);
   color: var(--primary-color);
   cursor: pointer;
   transition: all 0.2s;
@@ -470,6 +531,57 @@
   margin-top: 0.5rem;
   font-size: 0.8rem;
   opacity: 0.8;
+}
+
+/* Theme toggle button */
+.theme-toggle-btn {
+  background: transparent;
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-right: 10px;
+  font-size: 1.1rem;
+}
+
+.theme-toggle-btn:hover {
+  background-color: var(--primary-color);
+  color: white;
+  transform: rotate(45deg);
+}
+
+.theme-toggle-btn:active {
+  transform: scale(0.95);
+}
+
+.toolbar-actions {
+  display: flex;
+  align-items: center;
+}
+
+/* Add smooth transitions for theme changes */
+.container,
+.chat-container,
+.chat-header,
+.chat-toolbar,
+.chat-messages,
+.message,
+chat-input,
+#user-input,
+.typing-indicator,
+.persona-select,
+.language-selector-modal,
+.language-buttons button {
+  transition: background-color 0.3s ease, 
+              color 0.3s ease, 
+              border-color 0.3s ease, 
+              box-shadow 0.3s ease;
 }
 
 /* Animations */

@@ -26,7 +26,8 @@ export default function RootLayout({ children }) {
           background: "var(--background-gradient)",
           height: "100vh",
           display: "flex",
-          flexDirection: "column"
+          flexDirection: "column",
+          transition: "background 0.3s ease, color 0.3s ease"
         }}
       >
         {children}

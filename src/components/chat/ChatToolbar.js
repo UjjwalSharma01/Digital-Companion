@@ -1,6 +1,7 @@
 'use client';
 
 import { useChat } from '@/lib/hooks/useChat';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 /**
  * Toolbar component with actions like clearing chat and switching personas
@@ -26,13 +27,16 @@ export default function ChatToolbar({ onClearChat }) {
           ))}
         </select>
       </div>
-      <button 
-        onClick={onClearChat}
-        className="clear-chat-btn"
-        title="Clear chat history"
-      >
-        🗑️ Clear Chat
-      </button>
+      <div className="toolbar-actions">
+        <ThemeToggle />
+        <button 
+          onClick={onClearChat}
+          className="clear-chat-btn"
+          title="Clear chat history"
+        >
+          🗑️ Clear Chat
+        </button>
+      </div>
     </div>
   );
 }
